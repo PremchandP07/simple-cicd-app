@@ -2,53 +2,32 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "prem07p/simple-cicd-app"
+        // Optional: define your SonarQube server name (from Jenkins config)
+        SONARQUBE_SERVER = 'SonarQube'
     }
 
     stages {
-
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
- stage('SonarQube Analysis') {
-    steps {
-        script {
-            def scannerHome = tool 'sonar-scanner'
-            withSonarQubeEnv('SonarQube') {
-                sh """
-                ${scannerHome}/bin/sonar-scanner \
-                -Dsonar.projectKey=simple-cicd-app \
-                -Dsonar.projectName=simple-cicd-app \
-                -Dsonar.sources=.
-                """
-            }
-        }
-    }
-}
-
-        stage('Build Docker Image') {
+        stage('SonarQube Analysis') {
             steps {
-                sh 'docker build -t $DOCKER_IMAGE .'
-            }
-        }
-
-        stage('Push to DockerHub') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
-                    sh 'docker login -u $USER -p $PASS'
-                    sh 'docker push $DOCKER_IMAGE'
+                // Inject the token from Jenkins Credentials
+                withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_AUTH_TOKEN')]) {
+                    withSonarQubeEnv(SONARQUBE_SERVER) {
+                        sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=simple-cicd-app \
+                            -Dsonar.projectName=simple-cicd-app \
+                            -Dsonar.sources=. \
+                            -Dsonar.login=$SONAR_AUTH_TOKEN
+                        """
+                    }
                 }
             }
         }
-
-        stage('Deploy Container') {
-            steps {
-                sh 'docker run -d -p 5000:5000 $DOCKER_IMAGE'
-            }
-        }
-
     }
 }
