@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         // Optional: define your SonarQube server name (from Jenkins config)
-        SONARQUBE_SERVER = 'SonarQube'
+        SONARQUBE_SERVER = 'sonarqube'
     }
 
     stages {
