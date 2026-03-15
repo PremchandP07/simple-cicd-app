@@ -5,10 +5,6 @@ pipeline {
         DOCKER_IMAGE = "prem07p/simple-cicd-app"
     }
 
-    tools {
-        sonarQubeScanner 'sonar-scanner'
-    }
-
     stages {
 
         stage('Checkout Code') {
