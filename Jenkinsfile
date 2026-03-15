@@ -1,15 +1,15 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQube 'sonar-scanner'
+    environment {
+        DOCKER_IMAGE = "prem07p/simple-cicd-app"
     }
 
     stages {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/YOUR_GITHUB_USERNAME/simple-cicd-app.git'
+                git 'https://github.com/PremchandP07/simple-cicd-app.git'
             }
         }
 
@@ -23,22 +23,22 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t YOUR_DOCKERHUB_USERNAME/simple-cicd-app .'
+                sh 'docker build -t $DOCKER_IMAGE .'
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
                     sh 'docker login -u $USER -p $PASS'
-                    sh 'docker push YOUR_DOCKERHUB_USERNAME/simple-cicd-app'
+                    sh 'docker push $DOCKER_IMAGE'
                 }
             }
         }
 
-        stage('Deploy Container') {
+        stage('Run Container') {
             steps {
-                sh 'docker run -d -p 5000:5000 YOUR_DOCKERHUB_USERNAME/simple-cicd-app'
+                sh 'docker run -d -p 5000:5000 $DOCKER_IMAGE'
             }
         }
     }
