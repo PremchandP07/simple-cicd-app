@@ -9,7 +9,7 @@ pipeline {
 
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/PremchandP07/simple-cicd-app.git'
+                checkout scm
             }
         }
 
@@ -36,7 +36,7 @@ pipeline {
             }
         }
 
-        stage('Run Container') {
+        stage('Deploy Container') {
             steps {
                 sh 'docker run -d -p 5000:5000 $DOCKER_IMAGE'
             }
