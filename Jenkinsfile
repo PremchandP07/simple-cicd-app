@@ -13,12 +13,17 @@ pipeline {
             }
         }
 
-      stage('SonarQube Analysis') {
+ stage('SonarQube Analysis') {
     steps {
         script {
             def scannerHome = tool 'sonar-scanner'
             withSonarQubeEnv('SonarQube') {
-                sh "${scannerHome}/bin/sonar-scanner"
+                sh """
+                ${scannerHome}/bin/sonar-scanner \
+                -Dsonar.projectKey=simple-cicd-app \
+                -Dsonar.projectName=simple-cicd-app \
+                -Dsonar.sources=.
+                """
             }
         }
     }
